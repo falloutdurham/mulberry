@@ -5,6 +5,7 @@
 #     "fastapi",
 #     "uvicorn",
 #     "pydantic",
+#     "pyxorfilter",
 # ]
 # ///
 """
