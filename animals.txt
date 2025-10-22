@@ -1,0 +1,10 @@
+dog
+cat
+bird
+fish
+rabbit
+hamster
+turtle
+snake
+lizard
+parrot
