@@ -48,16 +48,15 @@ class SimpleXorFilter:
         return int.from_bytes(h[:8], byteorder='big')
 
     def _build_filter(self) -> List[int]:
-        """Build the XOR filter from the items."""
+        """Build the bloom filter from the items."""
         fingerprints = [0] * self.filter_size
 
         for item in self.items_set:
-            # Use multiple hash functions (3 is standard for XOR filters)
+            # Use multiple hash functions (3 is standard)
             for seed in range(3):
                 idx = self._hash(item, seed) % self.filter_size
-                # Store the XOR of fingerprints
-                fp = self._hash(item, seed + 100) % (2 ** 32)
-                fingerprints[idx] ^= fp
+                # Set bit to 1 (using 1 instead of actual fingerprint for simplicity)
+                fingerprints[idx] = 1
 
         return fingerprints
 
@@ -72,31 +71,23 @@ class SimpleXorFilter:
             True if the item might be in the filter (or false positive),
             False if definitely not in the filter
         """
-        # First check exact membership (no false positives for actual members)
-        if item in self.items_set:
-            return True
-
-        # For non-members, use the probabilistic filter
-        # This allows for some false positives
-        result = 0
+        # Check all hash positions - if any are 0, item is definitely not in set
         for seed in range(3):
             idx = self._hash(item, seed) % self.filter_size
-            fp = self._hash(item, seed + 100) % (2 ** 32)
-            result ^= self.fingerprints[idx] ^ fp
+            if self.fingerprints[idx] == 0:
+                return False
 
-        # In a perfect XOR filter, result should be 0 for members
-        # We allow a small margin for false positives
-        return result == 0
+        # All positions are 1, so item is probably in the set
+        return True
 
     def to_dict(self) -> dict:
         """
         Serialize the filter to a dictionary.
 
         Returns:
-            Dictionary representation of the filter
+            Dictionary representation of the filter (without items for space efficiency)
         """
         return {
-            "items": list(self.items_set),
             "filter_size": self.filter_size,
             "num_items": self.num_items,
             "false_positive_rate": self.false_positive_rate,
@@ -114,10 +105,9 @@ class SimpleXorFilter:
         Returns:
             Reconstructed SimpleXorFilter instance
         """
-        # Create a new instance
-        items = data["items"]
+        # Create a new instance without items (they're not stored for space efficiency)
         instance = cls.__new__(cls)
-        instance.items_set = set(items)
+        instance.items_set = set()  # Empty set, not needed for queries
         instance.num_items = data["num_items"]
         instance.filter_size = data["filter_size"]
         instance.false_positive_rate = data["false_positive_rate"]
