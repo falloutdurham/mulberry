@@ -1,0 +1,32 @@
+{
+  "uuid": "ec987afb-025d-4da6-a3bb-e2a8631335da",
+  "source_file": "example_data.txt",
+  "num_entries": 19,
+  "filter_data": {
+    "num_items": 19,
+    "filter_type": "Xor8",
+    "size_bytes": 78,
+    "data": "wVwCiewtCpESAAAAAAAAALOmqQCUAAAAAEsAAcWOAAAAAAAAAB62AADkAK59AgAAMHSmAQAAqwEzAEwAAAAAAAYXZCg8gw==",
+    "items": [
+      "elderberry",
+      "orange",
+      "lemon",
+      "grape",
+      "kiwi",
+      "mango",
+      "raspberry",
+      "watermelon",
+      "nectarine",
+      "strawberry",
+      "banana",
+      "fig",
+      "papaya",
+      "date",
+      "tangerine",
+      "cherry",
+      "honeydew",
+      "quince",
+      "apple"
+    ]
+  }
+}
