@@ -30,12 +30,11 @@ class SimpleXorFilter:
         Args:
             items: List of strings to add to the filter
         """
-        self.items_set = set(items)  # Store items for serialization
-        self.num_items = len(self.items_set)
+        self.num_items = len(items)
 
         # Create and populate the Xor8 filter
         self.filter = Xor8(self.num_items)
-        if not self.filter.populate(list(self.items_set)):
+        if not self.filter.populate(items):
             raise ValueError("Failed to populate XOR filter")
 
     def __contains__(self, item: str) -> bool:
@@ -56,18 +55,15 @@ class SimpleXorFilter:
         Serialize the filter to a dictionary.
 
         Returns:
-            Dictionary representation of the filter (includes items for cross-language compatibility)
+            Dictionary representation of the filter (without items for space efficiency)
         """
         # Serialize the filter to bytes and encode as base64 for JSON compatibility
         serialized = self.filter.serialize()
-        # Store both the binary filter AND items for cross-language compatibility
-        # This allows other implementations (e.g., Go) to rebuild the filter
         return {
             "num_items": self.num_items,
             "filter_type": "Xor8",
             "size_bytes": self.filter.size_in_bytes(),
-            "data": base64.b64encode(serialized).decode('ascii'),
-            "items": list(self.items_set)  # Include items for Go compatibility
+            "data": base64.b64encode(serialized).decode('ascii')
         }
 
     @classmethod
@@ -84,7 +80,6 @@ class SimpleXorFilter:
         # Create a new instance and deserialize the filter
         instance = cls.__new__(cls)
         instance.num_items = data["num_items"]
-        instance.items_set = set(data.get("items", []))  # Load items if available
 
         # Decode the base64 data and deserialize
         filter_bytes = base64.b64decode(data["data"])
